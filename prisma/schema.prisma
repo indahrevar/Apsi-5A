@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model admin {
+  id_admin          String       @id @db.VarChar(10)
+  id_owner          String       @db.VarChar(10)
+  nama_admin        String       @db.VarChar(50)
+  jenis_kelamin     String       @db.VarChar(10)
+  no_telepon        String       @db.VarChar(16)
+  email             String       @db.VarChar(40)
+  tanggal_bergabung DateTime     @db.Date
+  owner             owner        @relation(fields: [id_owner], references: [id_owner])
+  pembayaran        pembayaran[]
+  penyerahan        penyerahan[]
+  pesanan           pesanan[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_pesanan {
+  no_pesanan          String  @db.VarChar(10)
+  id_produk           String  @db.VarChar(10)
+  jumlah              Int
+  harga_satuan        Decimal @db.Decimal(19, 2)
+  stok_produk_sebelum Int
+  stok_produk_sesudah Int
+  produk              produk  @relation(fields: [id_produk], references: [id_produk])
+  pesanan             pesanan @relation(fields: [no_pesanan], references: [no_pesanan], onDelete: Cascade)
+
+  @@id([no_pesanan, id_produk])
+}
+
+model karyawan {
+  id_karyawan       String     @id @db.VarChar(10)
+  nama_karyawan     String     @db.VarChar(50)
+  jenis_kelamin     String     @db.VarChar(10)
+  no_telepon        String     @db.VarChar(16)
+  email             String     @db.VarChar(40)
+  tanggal_bergabung DateTime   @db.Date
+  produksi          produksi[]
+}
+
+model owner {
+  id_owner          String   @id @db.VarChar(10)
+  nama_owner        String   @db.VarChar(50)
+  jenis_kelamin     String   @db.VarChar(10)
+  no_telepon        String   @db.VarChar(16)
+  email             String   @db.VarChar(40)
+  tanggal_bergabung DateTime @db.Date
+  admin             admin[]
+}
+
+model pelanggan {
+  id_pelanggan   String    @id @db.VarChar(10)
+  nama_pelanggan String    @db.VarChar(50)
+  jenis_kelamin  String    @db.VarChar(10)
+  no_telepon     String    @db.VarChar(16)
+  email          String    @db.VarChar(40)
+  nama_jalan     String    @db.VarChar(50)
+  nomor          String    @db.VarChar(4)
+  kota           String    @db.VarChar(15)
+  pesanan        pesanan[]
+}
+
+model pembayaran {
+  id_pembayaran     String   @id @db.VarChar(10)
+  id_admin          String   @db.VarChar(10)
+  no_pesanan        String   @db.VarChar(10)
+  metode_pembayaran String   @db.VarChar(10)
+  jumlah_bayar      Decimal  @db.Decimal(19, 2)
+  tanggal_bayar     DateTime @db.Date
+  status_pembayaran String   @db.VarChar(10)
+  admin             admin    @relation(fields: [id_admin], references: [id_admin])
+  pesanan           pesanan  @relation(fields: [no_pesanan], references: [no_pesanan])
+}
+
+model penyerahan {
+  id_penyerahan      String   @id @db.VarChar(10)
+  id_admin           String   @db.VarChar(10)
+  no_pesanan         String   @db.VarChar(10)
+  metode_penyerahan  String   @db.VarChar(10)
+  status_penyerahan  String   @db.VarChar(10)
+  tanggal_penyerahan DateTime @db.Date
+  admin              admin    @relation(fields: [id_admin], references: [id_admin])
+  pesanan            pesanan  @relation(fields: [no_pesanan], references: [no_pesanan])
+}
+
+model pesanan {
+  no_pesanan      String           @id @db.VarChar(10)
+  id_admin        String           @db.VarChar(10)
+  id_pelanggan    String           @db.VarChar(10)
+  tanggal_pesanan DateTime         @db.Date
+  status_pesanan  String           @db.VarChar(10)
+  detail_pesanan  detail_pesanan[]
+  pembayaran      pembayaran[]
+  penyerahan      penyerahan[]
+  admin           admin            @relation(fields: [id_admin], references: [id_admin])
+  pelanggan       pelanggan        @relation(fields: [id_pelanggan], references: [id_pelanggan])
+  produksi        produksi[]
+  ulasan          ulasan[]
+}
+
+model produk {
+  id_produk       String           @id @db.VarChar(10)
+  nama_produk     String           @db.VarChar(30)
+  kategori_produk String           @db.VarChar(10)
+  satuan_produk   String           @db.VarChar(10)
+  stok_minimum    Int
+  detail_pesanan  detail_pesanan[]
+}
+
+model produksi {
+  id_produksi              String   @id @db.VarChar(10)
+  no_pesanan               String   @db.VarChar(10)
+  id_karyawan              String   @db.VarChar(10)
+  status_produksi          String   @db.VarChar(10)
+  tanggal_mulai_produksi   DateTime @db.Date
+  tanggal_selesai_produksi DateTime @db.Date
+  karyawan                 karyawan @relation(fields: [id_karyawan], references: [id_karyawan])
+  pesanan                  pesanan  @relation(fields: [no_pesanan], references: [no_pesanan])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model ulasan {
+  id_ulasan      String   @id @db.VarChar(10)
+  no_pesanan     String   @db.VarChar(10)
+  rating         Int
+  isi_ulasan     String   @db.VarChar(255)
+  tanggal_ulasan DateTime @db.Date
+  pesanan        pesanan  @relation(fields: [no_pesanan], references: [no_pesanan])
+}
