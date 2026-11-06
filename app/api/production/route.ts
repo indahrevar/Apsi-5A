@@ -33,6 +33,7 @@ export async function GET() {
     })),
     paymentStatus: row.pesanan.pembayaran[0]?.status_pembayaran ?? "Menunggu",
     delivery: row.pesanan.metode_penyerahan,
+    note: row.pesanan.catatan_pesanan,
     orderStatus: row.pesanan.status_pesanan,
     status: row.status_produksi,
     date: row.pesanan.tanggal_pesanan.toISOString(),

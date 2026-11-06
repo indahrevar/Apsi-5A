@@ -15,6 +15,7 @@ type Order = {
   orderStatus: string;
   delivery: string;
   deliveryAddress: string | null;
+  note: string | null;
   handoverStatus: string;
   date: string;
 };
@@ -126,7 +127,10 @@ export function CustomerOrdersTable() {
                 <tr key={order.id}>
                   <td>{order.id}</td>
                   <td>{formatDate(order.date)}</td>
-                  <td>{order.items}</td>
+                  <td>
+                    {order.items}
+                    {order.note ? <small>Catatan: {order.note}</small> : null}
+                  </td>
                   <td>{formatRupiah(order.total)}</td>
                   <td><StatusPill>{order.paymentStatus}</StatusPill></td>
                   <td><StatusPill>{order.status}</StatusPill></td>

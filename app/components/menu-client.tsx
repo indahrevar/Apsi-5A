@@ -3,19 +3,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { saveCart, useCart } from "@/app/lib/cart-store";
+import { saveCart, saveOrderNote, useCart, useOrderNote } from "@/app/lib/cart-store";
 import { formatRupiah } from "@/app/lib/demo-data";
 import { pinukuikImageUrl } from "@/app/lib/product-image";
 import type { MenuProduct } from "@/app/lib/demo-data";
 
-type Category = "Semua" | "Kue Basah" | "Makanan Ringan";
-
 export function MenuClient() {
   const [products, setProducts] = useState<MenuProduct[]>([]);
   const [loadError, setLoadError] = useState("");
-  const [category, setCategory] = useState<Category>("Semua");
+  const [category, setCategory] = useState("Semua");
   const [query, setQuery] = useState("");
   const quantities = useCart();
+  const orderNote = useOrderNote();
   useEffect(() => {
     let active = true;
     void fetch("/api/products", { cache: "no-store" })
@@ -38,6 +37,10 @@ export function MenuClient() {
       ),
     [category, products, query],
   );
+  const categories = useMemo(
+    () => ["Semua", ...new Set(products.map((product) => product.category))],
+    [products],
+  );
   const cartCount = Object.values(quantities).reduce(
     (total, quantity) => total + quantity,
     0,
@@ -49,9 +52,16 @@ export function MenuClient() {
   );
 
   function updateQuantity(productId: string, delta: number) {
+    const product = products.find((item) => item.id === productId);
+    if (!product) return;
+    const maximum = Math.min(product.stock, 100);
+    const quantity = quantities[productId] ?? 0;
+    if (delta > 0 && quantity >= maximum) return;
     const next = {
       ...quantities,
-      [productId]: Math.max(0, (quantities[productId] ?? 0) + delta),
+      [productId]: delta > 0
+        ? Math.min(maximum, quantity + delta)
+        : Math.max(0, quantity + delta),
     };
     if (next[productId] === 0) delete next[productId];
     saveCart(next);
@@ -73,19 +83,17 @@ export function MenuClient() {
             value={query}
           />
           <div aria-label="Filter kategori" className="filter-list">
-            {(["Semua", "Kue Basah", "Makanan Ringan"] as const).map(
-              (option) => (
-                <button
-                  aria-pressed={category === option}
-                  className={`button button--filter${category === option ? " is-selected" : ""}`}
-                  key={option}
-                  onClick={() => setCategory(option)}
-                  type="button"
-                >
-                  {option}
-                </button>
-              ),
-            )}
+            {categories.map((option) => (
+              <button
+                aria-pressed={category === option}
+                className={`button button--filter${category === option ? " is-selected" : ""}`}
+                key={option}
+                onClick={() => setCategory(option)}
+                type="button"
+              >
+                {option}
+              </button>
+            ))}
           </div>
         </div>
         {loadError ? <p className="form-error" role="alert">{loadError}</p> : null}
@@ -106,6 +114,7 @@ export function MenuClient() {
                   <h2>{product.name}</h2>
                   <p className="product-card__price">{formatRupiah(product.price)}</p>
                   <span className="category-tag">{product.category}</span>
+                  <small>{product.stock > 0 ? `Stok: ${product.stock}` : "Stok habis"}</small>
                 </div>
                 <div className="product-card__actions">
                   <div aria-label={`Jumlah ${product.name}`} className="stepper">
@@ -119,6 +128,7 @@ export function MenuClient() {
                     <span>{quantities[product.id] ?? 0}</span>
                     <button
                       aria-label={`Tambah ${product.name}`}
+                      disabled={(quantities[product.id] ?? 0) >= Math.min(product.stock, 100)}
                       onClick={() => updateQuantity(product.id, 1)}
                       type="button"
                     >
@@ -127,6 +137,7 @@ export function MenuClient() {
                   </div>
                   <button
                     className="button button--primary button--small"
+                    disabled={(quantities[product.id] ?? 0) >= Math.min(product.stock, 100)}
                     onClick={() => updateQuantity(product.id, 1)}
                     type="button"
                   >
@@ -171,8 +182,11 @@ export function MenuClient() {
         <textarea
           className="text-input"
           id="order-note"
+          maxLength={500}
+          onChange={(event) => saveOrderNote(event.target.value)}
           placeholder="Contoh: tulisan selamat ulang tahun"
           rows={3}
+          value={orderNote}
         />
         <Link
           aria-disabled={!cartCount}

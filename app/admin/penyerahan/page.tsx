@@ -9,16 +9,6 @@ export default function HandoverPage() {
         title="Laporan Penyerahan"
         description="Pantau pesanan yang siap diambil atau diantar."
       />
-      <div className="toolbar">
-        <label className="field-label" htmlFor="handover-period">
-          Periode
-        </label>
-        <select className="text-input period-select" id="handover-period">
-          <option>Semua periode</option>
-          <option>November 2026</option>
-          <option>Oktober 2026</option>
-        </select>
-      </div>
       <HandoverTable />
     </WorkspaceShell>
   );

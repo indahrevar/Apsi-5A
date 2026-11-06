@@ -36,6 +36,12 @@ The permission checks are enforced by the server, including on API requests:
 - **Karyawan Produksi**: access assigned production work and update its production status.
 - **Owner**: view reports and business data, and create Admin accounts.
 
+## API and database integration
+
+Business records are served from PostgreSQL through the role-protected handlers in `app/api`. Customer checkout saves the order note, item prices, payment, and stock changes together; the cart and unsent checkout note are browser-only drafts. The API revalidates available stock when an order is submitted, so browser state is never trusted for prices or inventory.
+
+When changing the data model, update `prisma/schema.prisma`, create and apply a migration with `npm run db:migrate -- --name <migration_name>`, and regenerate the Prisma Client with `npm run db:generate`. Keep authorization and business-rule checks in the API as well as in the UI.
+
 Running `npm run db:seed` generates demo accounts for all four roles and writes their usernames and random passwords to `LOCAL-TEST-CREDENTIALS.md` in the project root. That file is Git-ignored and intended only for local development. **Every seed run rotates these demo passwords and replaces the file.** Do not use the demo accounts or seed script in production; provision production accounts and secrets through a secure, environment-appropriate process.
 
 To populate the reports with a richer sample business history, first run `npm run db:seed`, then `npm run db:seed:demo`. The demo-data command adds 12 clearly labeled fictional customers and 180 orders spread across the most recent 90 days, plus associated item, payment, production, handover, review, and feedback records. It is safe to rerun, only connects to a database on the local machine, does not alter product stock or rotate account passwords, and is not intended for production.

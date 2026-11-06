@@ -6,13 +6,21 @@ import { getPrismaClient } from "@/lib/prisma";
 type OrderLineInput = { productId: string; quantity: number };
 
 function isOrderLines(value: unknown): value is OrderLineInput[] {
-  return Array.isArray(value) && value.length > 0 && value.length <= 20 &&
-    value.every((line) =>
-      typeof line === "object" && line !== null &&
-      "productId" in line && typeof line.productId === "string" &&
-      "quantity" in line && Number.isInteger(line.quantity) &&
-      Number(line.quantity) > 0 && Number(line.quantity) <= 100,
-    );
+  if (!Array.isArray(value) || value.length === 0 || value.length > 20) return false;
+  const quantities = new Map<string, number>();
+  for (const line of value) {
+    if (
+      typeof line !== "object" || line === null ||
+      !("productId" in line) || typeof line.productId !== "string" ||
+      !/^[A-Za-z0-9-]{1,10}$/.test(line.productId) ||
+      !("quantity" in line) || !Number.isInteger(line.quantity) ||
+      Number(line.quantity) <= 0
+    ) return false;
+    const total = (quantities.get(line.productId) ?? 0) + Number(line.quantity);
+    if (total > 100) return false;
+    quantities.set(line.productId, total);
+  }
+  return true;
 }
 
 function toOrderDto(order: {
@@ -21,6 +29,7 @@ function toOrderDto(order: {
   status_pesanan: string;
   metode_penyerahan: string;
   alamat_penyerahan: string | null;
+  catatan_pesanan: string | null;
   pelanggan: { id_pelanggan: string; nama_pelanggan: string };
   detail_pesanan: Array<{ jumlah: number; harga_satuan: { toString(): string }; produk: { id_produk: string; nama_produk: string; satuan_produk: string } }>;
   pembayaran: Array<{ id_pembayaran: string; metode_pembayaran: string; status_pembayaran: string; jumlah_bayar: { toString(): string } }>;
@@ -54,6 +63,7 @@ function toOrderDto(order: {
     orderStatus: order.status_pesanan,
     delivery: order.metode_penyerahan,
     deliveryAddress: order.alamat_penyerahan,
+    note: order.catatan_pesanan,
     handoverStatus: handover?.status_penyerahan ?? "Belum disiapkan",
     date: order.tanggal_pesanan.toISOString(),
   };
@@ -94,6 +104,10 @@ export async function POST(request: Request) {
   } catch {
     return apiError("Data pesanan tidak valid.", 400);
   }
+  if (
+    input.note !== undefined &&
+    (typeof input.note !== "string" || input.note.trim().length > 500)
+  ) return apiError("Catatan pesanan maksimal 500 karakter.", 400);
   if (!isOrderLines(input.items) ||
       !["Transfer", "Tunai"].includes(String(input.paymentMethod)) ||
       !["Ambil di Tempat", "Diantar"].includes(String(input.deliveryMethod)) ||
@@ -125,6 +139,8 @@ export async function POST(request: Request) {
           status_pesanan: "Diterima",
           metode_penyerahan: input.deliveryMethod === "Diantar" ? "Diantar" : "Ambil",
           alamat_penyerahan: input.deliveryMethod === "Diantar" ? String(input.address).trim() : null,
+          catatan_pesanan:
+            typeof input.note === "string" && input.note.trim() ? input.note.trim() : null,
         },
       });
 

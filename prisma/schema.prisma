@@ -139,6 +139,7 @@ model pesanan {
   status_pesanan  String           @db.VarChar(10)
   metode_penyerahan String         @default("Ambil") @db.VarChar(20)
   alamat_penyerahan String?        @db.VarChar(150)
+  catatan_pesanan String?          @db.VarChar(500)
   detail_pesanan  detail_pesanan[]
   pembayaran      pembayaran[]
   penyerahan      penyerahan[]

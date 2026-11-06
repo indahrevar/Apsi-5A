@@ -14,6 +14,7 @@ type Production = {
   lines: Array<{ product: string; quantity: number; unit: string; price: number }>;
   paymentStatus: string;
   delivery: string;
+  note: string | null;
   status: string;
   date: string;
 };
@@ -50,6 +51,7 @@ export function ProductionDetailClient({ orderId }: { orderId: string }) {
               <div><dt>Pemesan</dt><dd>{production.customer}</dd></div>
               <div><dt>Tanggal pesanan</dt><dd>{new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(new Date(production.date))}</dd></div>
               <div><dt>Metode penyerahan</dt><dd>{production.delivery}</dd></div>
+              <div><dt>Catatan pesanan</dt><dd>{production.note || "—"}</dd></div>
               <div><dt>Status pembayaran</dt><dd><StatusPill>{production.paymentStatus}</StatusPill></dd></div>
             </dl>
           </Panel>

@@ -15,6 +15,8 @@ type Order = {
   orderStatus: string;
   status: string;
   delivery: string;
+  note: string | null;
+  date: string;
   productionId: string | null;
 };
 
@@ -270,7 +272,9 @@ export function OrderPaymentsTable() {
               const paid = ["Dikonfirmasi", "Lunas", "Berhasil"].includes(order.paymentStatus);
               return (
                 <tr key={order.id}>
-                  <td>{order.id}</td><td>{order.customer}</td><td>{order.items}</td><td>{formatRupiah(order.total)}</td><td>{order.method}</td>
+                  <td>{order.id}</td><td>{order.customer}</td>
+                  <td>{order.items}{order.note ? <small>Catatan: {order.note}</small> : null}</td>
+                  <td>{formatRupiah(order.total)}</td><td>{order.method}</td>
                   <td><StatusPill>{order.paymentStatus}</StatusPill></td>
                   <td>
                     <select aria-label={`Status pesanan ${order.id}`} className="text-input" onChange={(event) => void updateOrderStatus(order, event.target.value)} value={order.orderStatus}>
@@ -300,7 +304,11 @@ export function OrderPaymentsTable() {
 export function HandoverTable() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [handovers, setHandovers] = useState<Array<{ id: string; orderId: string; status: string }>>([]);
+  const [selectedMonth, setSelectedMonth] = useState("");
   const [error, setError] = useState("");
+  const visibleOrders = orders.filter(
+    (order) => !selectedMonth || order.date.slice(0, 7) === selectedMonth,
+  );
 
   async function load() {
     const [orderResult, handoverResult] = await Promise.all([
@@ -344,11 +352,26 @@ export function HandoverTable() {
   return (
     <>
       {error ? <p className="form-error" role="alert">{error}</p> : null}
+      <div className="toolbar">
+        <label className="field-label" htmlFor="handover-period">Periode pesanan</label>
+        <input
+          className="text-input period-select"
+          id="handover-period"
+          onChange={(event) => setSelectedMonth(event.target.value)}
+          type="month"
+          value={selectedMonth}
+        />
+        {selectedMonth ? (
+          <button className="button button--outline" onClick={() => setSelectedMonth("")} type="button">
+            Semua periode
+          </button>
+        ) : null}
+      </div>
       <div className="table-scroll">
         <table className="data-table">
           <thead><tr><th>No. Pesanan</th><th>Pelanggan</th><th>Metode</th><th>Status</th><th>Aksi</th></tr></thead>
           <tbody>
-            {orders.map((order) => {
+            {visibleOrders.map((order) => {
               const record = handovers.find((handover) => handover.orderId === order.id);
               return (
                 <tr key={order.id}>
@@ -366,7 +389,7 @@ export function HandoverTable() {
                 </tr>
               );
             })}
-            {!orders.length ? <tr><td colSpan={5}>Belum ada pesanan.</td></tr> : null}
+            {!visibleOrders.length ? <tr><td colSpan={5}>Tidak ada pesanan pada periode ini.</td></tr> : null}
           </tbody>
         </table>
       </div>
