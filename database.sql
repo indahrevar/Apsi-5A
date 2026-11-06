@@ -159,6 +159,8 @@ CREATE TABLE ulasan (
         ON DELETE RESTRICT
 );
 
+select * FROM pelanggan;
+
 INSERT INTO pelanggan (id_pelanggan, nama_pelanggan, jenis_kelamin, no_telepon, email, nama_jalan, nomor, kota)
 VALUES 
     ('PLG01', 'Rizky Ramadhan', 'Laki-laki', '081234567890', 'rizky@gmail.com', 'Jl. Khatib Sulaiman', '12', 'Padang'),
