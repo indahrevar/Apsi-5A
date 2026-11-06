@@ -46,6 +46,14 @@ Running `npm run db:seed` generates demo accounts for all four roles and writes 
 
 To populate the reports with a richer sample business history, first run `npm run db:seed`, then `npm run db:seed:demo`. The demo-data command adds 12 clearly labeled fictional customers and 180 orders spread across the most recent 90 days, plus associated item, payment, production, handover, review, and feedback records. It is safe to rerun, only connects to a database on the local machine, does not alter product stock or rotate account passwords, and is not intended for production.
 
+## Deploying with Vercel and Neon
+
+The app is configured for Vercel with a Neon Postgres database. In Vercel, import this GitHub repository and add the Neon Postgres integration. Since a Neon project has not been created yet, use the Vercel-managed integration to provision one; connect it to the project’s Production and Preview environments and enable preview database branching. Vercel’s build runs `npm run vercel-build`, which generates Prisma Client, applies committed migrations, and builds the app.
+
+The application uses `DATABASE_URL` at runtime. Prisma CLI commands prefer `DIRECT_URL`, then Neon’s `DATABASE_URL_UNPOOLED`, and finally `DATABASE_URL`; configure an unpooled/direct URL for migrations when the integration does not provide one. Keep each environment’s connection string scoped to its corresponding Neon branch. Never commit connection strings or place them in client-side `NEXT_PUBLIC_*` variables.
+
+The production database starts without sample records. Do not run `npm run db:seed` or `npm run db:seed:demo` against Neon. After the first deployment has applied migrations, create the first production Owner exactly once with `npm run db:bootstrap-owner`. Set `DATABASE_URL` (or `DIRECT_URL`) and the `INITIAL_OWNER_USERNAME`, `INITIAL_OWNER_NAME`, `INITIAL_OWNER_GENDER`, `INITIAL_OWNER_PHONE`, and `INITIAL_OWNER_EMAIL` variables in the local process for that command; it prompts for the password without echoing it. Do not add credentials to source control or deployment logs. The script refuses to run if an owner already exists.
+
 ## Environment
 
 `.env` is ignored by Git and contains local credentials. `.env.example` is a template only; replace its example password before use. The project database is mapped to host port `5433` to avoid changing or conflicting with PostgreSQL services on the default port `5432`.

@@ -7,6 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "vercel-build": "npm run db:generate && npm run db:deploy && next build --webpack",
     "db:setup": "docker compose up -d --wait db && prisma migrate dev --name init && prisma generate && prisma db seed",
     "db:up": "docker compose up -d --wait db",
     "db:down": "docker compose down",
@@ -16,6 +17,7 @@
     "db:generate": "prisma generate",
     "db:seed": "prisma db seed",
     "db:seed:demo": "node prisma/seed-demo.mjs",
+    "db:bootstrap-owner": "node prisma/bootstrap-owner.mjs",
     "db:studio": "prisma studio"
   },
   "dependencies": {
