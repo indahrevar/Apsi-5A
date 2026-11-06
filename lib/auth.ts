@@ -4,6 +4,7 @@ import { createHash, randomBytes, scrypt as scryptCallback, timingSafeEqual } fr
 import { promisify } from "node:util";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { getPrismaClient } from "@/lib/prisma";
 import type { account_role } from "@/app/generated/prisma/enums";
 
@@ -75,6 +76,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   const token = (await cookies()).get(sessionCookieName)?.value;
   if (!token) return null;
 
+  await connection();
   const session = await getPrismaClient().auth_session.findFirst({
     where: { token_hash: hashSessionToken(token), expires_at: { gt: new Date() } },
     select: {

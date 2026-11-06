@@ -16,10 +16,10 @@ INSERT INTO karyawan (id_karyawan, nama_karyawan, jenis_kelamin, no_telepon, ema
 VALUES ('KRY01', 'Budi Santoso', 'Laki-laki', '082155566677', 'budi.prod@abita.com', '2023-06-01')
 ON CONFLICT (id_karyawan) DO NOTHING;
 
-INSERT INTO produk (id_produk, nama_produk, kategori_produk, satuan_produk, stok_minimum)
+INSERT INTO produk (id_produk, nama_produk, kategori_produk, satuan_produk, stok_minimum, gambar_url)
 VALUES
-    ('PRD01', 'Pinukuik Special', 'Makanan', 'Porsi', 5),
-    ('PRD02', 'Pinukuik Original', 'Makanan', 'Porsi', 10)
+    ('PRD01', 'Pinukuik Special', 'Makanan', 'Porsi', 5, 'https://upload.wikimedia.org/wikipedia/commons/7/74/Pinukuik.jpg'),
+    ('PRD02', 'Pinukuik Original', 'Makanan', 'Porsi', 10, 'https://upload.wikimedia.org/wikipedia/commons/7/74/Pinukuik.jpg')
 ON CONFLICT (id_produk) DO NOTHING;
 
 INSERT INTO pesanan (no_pesanan, id_admin, id_pelanggan, tanggal_pesanan, status_pesanan)

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PageTitle, Panel, StatCard, StatusPill } from "@/app/components/ui";
 import { formatRupiah, type MenuProduct } from "@/app/lib/demo-data";
+import { useClientDate } from "@/app/lib/use-client-date";
 
 type Order = {
   id: string;
@@ -20,6 +21,7 @@ export function AdminDashboardClient() {
   const [products, setProducts] = useState<MenuProduct[]>([]);
   const [handovers, setHandovers] = useState<Handover[]>([]);
   const [error, setError] = useState("");
+  const today = useClientDate();
 
   useEffect(() => {
     void Promise.all([
@@ -43,8 +45,7 @@ export function AdminDashboardClient() {
     );
   }, []);
 
-  const today = new Date().toISOString().slice(0, 10);
-  const todayOrders = orders.filter((order) => order.date.slice(0, 10) === today).length;
+  const todayOrders = today ? orders.filter((order) => order.date.slice(0, 10) === today).length : null;
   const awaitingPayment = orders.filter((order) => ["Menunggu", "Belum dibayar"].includes(order.paymentStatus)).length;
   const lowStock = products.filter((product) => product.stock <= product.minimum).length;
   const readyToHandOver = handovers.filter((item) => item.status === "Siap diserahkan").length;
@@ -54,7 +55,7 @@ export function AdminDashboardClient() {
       <PageTitle title="Dashboard Admin" />
       {error ? <p className="form-error" role="alert">{error}</p> : null}
       <div className="stat-grid">
-        <StatCard label="Pesanan hari ini" value={String(todayOrders)} note="Pesanan" />
+        <StatCard label="Pesanan hari ini" value={todayOrders === null ? "…" : String(todayOrders)} note="Pesanan" />
         <StatCard label="Menunggu konfirmasi bayar" value={String(awaitingPayment)} note="Pesanan" />
         <StatCard label="Stok mendekati minimum" value={String(lowStock)} note="Produk" />
         <StatCard label="Siap diserahkan" value={String(readyToHandOver)} note="Pesanan" />

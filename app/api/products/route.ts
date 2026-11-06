@@ -1,6 +1,7 @@
 import { authorizeApi } from "@/lib/api-auth";
 import { apiError, assertSameOrigin } from "@/lib/auth";
 import { getPrismaClient } from "@/lib/prisma";
+import { getProductImageUrl } from "@/app/lib/product-image";
 import { randomBytes } from "node:crypto";
 
 function productDto(product: {
@@ -21,7 +22,7 @@ function productDto(product: {
     price: Number(product.harga.toString()),
     stock: product.stok,
     minimum: product.stok_minimum,
-    image: product.gambar_url ?? "/figma/menu-brownies.png",
+    image: getProductImageUrl(product.gambar_url, product.nama_produk),
   };
 }
 

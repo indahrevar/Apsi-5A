@@ -25,11 +25,11 @@ try {
   await pool.query(seedSql);
 
   const products = [
-    ["PR01", "Brownies Kukus", "Kue Basah", "pcs", 35000, 277, 20, "/figma/menu-brownies.png"],
-    ["PR02", "Bolu Gulung", "Kue Basah", "roll", 45000, 117, 10, "/figma/menu-bolu.png"],
-    ["PR03", "Risoles Ragout", "Makanan Ringan", "pcs", 5000, 45, 50, "/figma/menu-risol.png"],
-    ["PR04", "Pastel Isi", "Makanan Ringan", "pcs", 6000, 300, 30, "/figma/menu-pastel.png"],
-    ["PR05", "Lapis Surabaya", "Kue Basah", "loyang", 72000, 40, 5, "/figma/menu-lapis.png"],
+    ["PR01", "Brownies Kukus", "Kue Basah", "pcs", 35000, 277, 20, "/figma/menu-brownies.jpg"],
+    ["PR02", "Bolu Gulung", "Kue Basah", "roll", 45000, 117, 10, "/figma/menu-bolu.jpg"],
+    ["PR03", "Risoles Ragout", "Makanan Ringan", "pcs", 5000, 45, 50, "/figma/menu-risol.jpg"],
+    ["PR04", "Pastel Isi", "Makanan Ringan", "pcs", 6000, 300, 30, "/figma/menu-pastel.jpg"],
+    ["PR05", "Lapis Surabaya", "Kue Basah", "loyang", 72000, 40, 5, "/figma/menu-lapis.jpg"],
   ];
   for (const [id, name, category, unit, price, stock, minimum, image] of products) {
     await pool.query(

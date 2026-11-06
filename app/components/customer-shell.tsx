@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { requireRole } from "@/lib/auth";
 import { LogoutButton } from "@/app/components/logout-button";
+import { BrandLockup } from "@/app/components/brand-lockup";
 
 const links = [
   { href: "/menu", label: "Menu & Pesan" },
@@ -35,8 +36,8 @@ async function AuthenticatedCustomerShell({
   return (
     <div className="customer-layout">
       <header className="customer-header">
-        <Link aria-label="Dapur Abita" className="brand-mark" href="/menu">
-          <span aria-hidden="true" className="brand-mark__cake"><span /></span>
+        <Link aria-label="Dapur Abita" className="customer-brand" href="/menu">
+          <BrandLockup />
         </Link>
         <nav aria-label="Navigasi pelanggan" className="customer-nav">
           {links.map((link) => (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { BrandLockup } from "@/app/components/brand-lockup";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -56,14 +57,7 @@ export default function LoginPage() {
             width={30}
           />
         </Link>
-        <Image
-          alt="Dapur Abita"
-          className="login-card__logo"
-          height={26}
-          priority
-          src="/figma/logo-placeholder.svg"
-          width={48}
-        />
+        <BrandLockup className="brand-lockup--auth" />
         <h1 id="login-title">Masuk</h1>
         <form className="login-fields" onSubmit={signIn}>
           <div className="form-field">

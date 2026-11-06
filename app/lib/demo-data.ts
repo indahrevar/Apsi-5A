@@ -30,7 +30,7 @@ export const menuProducts: MenuProduct[] = [
     price: 35000,
     stock: 277,
     minimum: 20,
-    image: "/figma/menu-brownies.png",
+    image: "/figma/menu-brownies.jpg",
   },
   {
     id: "PR02",
@@ -40,7 +40,7 @@ export const menuProducts: MenuProduct[] = [
     price: 45000,
     stock: 117,
     minimum: 10,
-    image: "/figma/menu-bolu.png",
+    image: "/figma/menu-bolu.jpg",
   },
   {
     id: "PR03",
@@ -50,7 +50,7 @@ export const menuProducts: MenuProduct[] = [
     price: 5000,
     stock: 45,
     minimum: 50,
-    image: "/figma/menu-risol.png",
+    image: "/figma/menu-risol.jpg",
   },
   {
     id: "PR04",
@@ -60,7 +60,7 @@ export const menuProducts: MenuProduct[] = [
     price: 6000,
     stock: 300,
     minimum: 30,
-    image: "/figma/menu-pastel.png",
+    image: "/figma/menu-pastel.jpg",
   },
   {
     id: "PR05",
@@ -70,7 +70,7 @@ export const menuProducts: MenuProduct[] = [
     price: 72000,
     stock: 40,
     minimum: 5,
-    image: "/figma/menu-lapis.png",
+    image: "/figma/menu-lapis.jpg",
   },
 ];
 

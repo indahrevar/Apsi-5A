@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { saveCart, useCart } from "@/app/lib/cart-store";
 import { formatRupiah } from "@/app/lib/demo-data";
+import { pinukuikImageUrl } from "@/app/lib/product-image";
 import type { MenuProduct } from "@/app/lib/demo-data";
 
 type Category = "Semua" | "Kue Basah" | "Makanan Ringan";
@@ -97,6 +98,7 @@ export function MenuClient() {
                   fill
                   sizes="(max-width: 700px) 90vw, (max-width: 1100px) 42vw, 260px"
                   src={product.image}
+                  unoptimized={product.image === pinukuikImageUrl}
                 />
               </div>
               <div className="product-card__body">

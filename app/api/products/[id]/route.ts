@@ -1,6 +1,7 @@
 import { authorizeApi, validId } from "@/lib/api-auth";
 import { apiError, assertSameOrigin } from "@/lib/auth";
 import { getPrismaClient } from "@/lib/prisma";
+import { getProductImageUrl } from "@/app/lib/product-image";
 
 export async function PATCH(request: Request, context: RouteContext<"/api/products/[id]">) {
   const originError = assertSameOrigin(request);
@@ -60,7 +61,7 @@ export async function PATCH(request: Request, context: RouteContext<"/api/produc
     price: Number(product.harga.toString()),
     stock: product.stok,
     minimum: product.stok_minimum,
-    image: product.gambar_url ?? "/figma/menu-brownies.png",
+    image: getProductImageUrl(product.gambar_url, product.nama_produk),
   });
 }
 

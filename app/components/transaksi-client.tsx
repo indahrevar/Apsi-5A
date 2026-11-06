@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { PageTitle, Panel, StatCard, StatusPill } from "@/app/components/ui";
+import { WeeklyRevenueChart } from "@/app/components/weekly-revenue-chart";
 import { formatRupiah } from "@/app/lib/demo-data";
+import { useClientDate } from "@/app/lib/use-client-date";
 
 type Transaction = {
   id_transaksi: string;
@@ -33,9 +35,12 @@ export default function TransaksiClient() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
-  const [period, setPeriod] = useState(new Date().toISOString().slice(0, 7));
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+  const today = useClientDate();
+  const period = selectedPeriod ?? today.slice(0, 7);
 
   useEffect(() => {
+    if (!period) return;
     const controller = new AbortController();
 
     async function loadTransactions() {
@@ -90,11 +95,10 @@ export default function TransaksiClient() {
           transaction.jumlah * transaction.harga_satuan,
       );
     }
-    return [...grouped.entries()].sort(([first], [second]) =>
-      first.localeCompare(second),
-    );
+    return [...grouped.entries()]
+      .sort(([first], [second]) => first.localeCompare(second))
+      .map(([date, revenue]) => ({ date, revenue }));
   }, [data]);
-  const maxDailySales = Math.max(1, ...dailySales.map(([, total]) => total));
 
   return (
     <>
@@ -103,7 +107,7 @@ export default function TransaksiClient() {
         <label className="field-label" htmlFor="transaction-period">
           Periode
         </label>
-        <input className="text-input period-select" id="transaction-period" onChange={(event) => setPeriod(event.target.value)} type="month" value={period} />
+        <input className="text-input period-select" id="transaction-period" onChange={(event) => setSelectedPeriod(event.target.value)} type="month" value={period} />
         <button className="button button--outline" onClick={() => window.print()} type="button">Cetak</button>
       </div>
       {error ? (
@@ -148,27 +152,7 @@ export default function TransaksiClient() {
             />
           </div>
           <div className="sales-grid">
-            <Panel className="chart-panel" title="Penjualan per hari">
-              {dailySales.length ? (
-                <div aria-label="Grafik penjualan per hari" className="bar-chart">
-                  {dailySales.slice(-7).map(([date, total]) => (
-                    <div className="bar-chart__column" key={date}>
-                      <span
-                        className="bar-chart__bar"
-                        style={{
-                          height: `${Math.max(14, (total / maxDailySales) * 100)}%`,
-                        }}
-                      />
-                      <span>{date.slice(8, 10)}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="empty-state">
-                  {isLoading ? "Memuat data penjualan…" : "Belum ada data penjualan."}
-                </p>
-              )}
-            </Panel>
+            <WeeklyRevenueChart daily={dailySales} month={period} />
             <Panel title="Transaksi terbaru">
               <div className="table-scroll">
                 <table className="data-table">

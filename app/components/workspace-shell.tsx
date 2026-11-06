@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { requireRole } from "@/lib/auth";
 import { LogoutButton } from "@/app/components/logout-button";
+import { BrandLockup } from "@/app/components/brand-lockup";
 
 type WorkspaceLink = {
   href: string;
@@ -43,11 +44,13 @@ async function AuthenticatedWorkspace({
   return (
     <div className="workspace-layout">
       <aside className="workspace-sidebar">
-        <Link aria-label="Kembali ke beranda" className="brand-mark" href="/">
-          <span aria-hidden="true" className="brand-mark__cake"><span /></span>
+        <Link
+          aria-label="Dapur Abita"
+          className="workspace-brand"
+          href="/"
+        >
+          <BrandLockup subtitle={`${role} · ${user.name}`} />
         </Link>
-        <p className="workspace-role">{role}</p>
-        <p className="workspace-user">{user.name}</p>
         <nav aria-label={`Navigasi ${role.toLowerCase()}`} className="workspace-nav">
           {links.map((link) => {
             const isActive = active === link.href;

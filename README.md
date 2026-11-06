@@ -19,6 +19,7 @@ The database uses a named Docker volume, so `npm run db:down` stops and removes 
 - `npm run db:deploy` applies pending migrations in a deployment environment.
 - `npm run db:generate` regenerates the Prisma Client after schema changes.
 - `npm run db:seed` inserts sample records and generates local test accounts.
+- `npm run db:seed:demo` adds repeatable, fictional report and workflow data to a local database.
 - `npm run db:studio` opens Prisma Studio.
 - `npm run db:logs` follows the PostgreSQL container logs.
 
@@ -36,6 +37,8 @@ The permission checks are enforced by the server, including on API requests:
 - **Owner**: view reports and business data, and create Admin accounts.
 
 Running `npm run db:seed` generates demo accounts for all four roles and writes their usernames and random passwords to `LOCAL-TEST-CREDENTIALS.md` in the project root. That file is Git-ignored and intended only for local development. **Every seed run rotates these demo passwords and replaces the file.** Do not use the demo accounts or seed script in production; provision production accounts and secrets through a secure, environment-appropriate process.
+
+To populate the reports with a richer sample business history, first run `npm run db:seed`, then `npm run db:seed:demo`. The demo-data command adds 12 clearly labeled fictional customers and 180 orders spread across the most recent 90 days, plus associated item, payment, production, handover, review, and feedback records. It is safe to rerun, only connects to a database on the local machine, does not alter product stock or rotate account passwords, and is not intended for production.
 
 ## Environment
 

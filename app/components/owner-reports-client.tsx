@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { formatRupiah } from "@/app/lib/demo-data";
 import { Panel, StatCard } from "@/app/components/ui";
+import { WeeklyRevenueChart } from "@/app/components/weekly-revenue-chart";
+import { useClientDate } from "@/app/lib/use-client-date";
 
 type Report = {
   summary: { orders: number; completed: number; handedOver: number; revenue: number; averageProductionDays: number };
@@ -17,10 +19,12 @@ function monthRange(month: string) {
 }
 
 export function OwnerReportsClient() {
-  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const today = useClientDate();
+  const month = selectedMonth ?? today.slice(0, 7);
 
   async function generateReport() {
     setLoading(true);
@@ -49,7 +53,7 @@ export function OwnerReportsClient() {
     <>
       <div className="toolbar">
         <label className="field-label" htmlFor="owner-period">Periode</label>
-        <input className="text-input period-select" id="owner-period" onChange={(event) => setMonth(event.target.value)} type="month" value={month} />
+        <input className="text-input period-select" id="owner-period" onChange={(event) => setSelectedMonth(event.target.value)} type="month" value={month} />
         <button className="button button--primary" disabled={loading} onClick={() => void generateReport()} type="button">{loading ? "Membuat…" : "Buat Laporan"}</button>
         <button className="button button--outline" disabled={!report} onClick={() => window.print()} type="button">Cetak</button>
       </div>
@@ -62,6 +66,7 @@ export function OwnerReportsClient() {
             <StatCard label="Pesanan diserahkan" value={String(report.summary.handedOver)} />
             <StatCard label="Pendapatan terkonfirmasi" value={formatRupiah(report.summary.revenue)} />
           </div>
+          <WeeklyRevenueChart daily={report.daily} month={month} />
           <p>Rata-rata waktu produksi: {report.summary.averageProductionDays.toFixed(1)} hari.</p>
           <Panel title="Ringkasan per tanggal pesanan">
             <div className="table-scroll">

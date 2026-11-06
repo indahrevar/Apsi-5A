@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { BrandLockup } from "@/app/components/brand-lockup";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -51,12 +51,7 @@ export default function RegisterPage() {
       <section aria-labelledby="register-title" className="panel register-card">
         <div className="register-brand">
           <Link aria-label="Kembali ke masuk" href="/">
-            <Image
-              alt=""
-              height={26}
-              src="/figma/logo-placeholder.svg"
-              width={48}
-            />
+            <BrandLockup />
           </Link>
         </div>
         <h1 className="page-title" id="register-title">
