@@ -7,6 +7,40 @@ datasource db {
   provider = "postgresql"
 }
 
+enum account_role {
+  ADMIN
+  CUSTOMER
+  KARYAWAN_PRODUKSI
+  OWNER
+}
+
+model account {
+  id_account     String        @id @default(cuid())
+  username       String        @unique @db.VarChar(50)
+  password_hash  String        @db.VarChar(255)
+  role           account_role
+  id_admin       String?       @unique @db.VarChar(10)
+  id_pelanggan   String?       @unique @db.VarChar(10)
+  id_karyawan    String?       @unique @db.VarChar(10)
+  id_owner       String?       @unique @db.VarChar(10)
+  admin          admin?        @relation(fields: [id_admin], references: [id_admin], onDelete: Cascade)
+  pelanggan      pelanggan?    @relation(fields: [id_pelanggan], references: [id_pelanggan], onDelete: Cascade)
+  karyawan       karyawan?     @relation(fields: [id_karyawan], references: [id_karyawan], onDelete: Cascade)
+  owner          owner?        @relation(fields: [id_owner], references: [id_owner], onDelete: Cascade)
+  sessions       auth_session[]
+}
+
+model auth_session {
+  id_session  String   @id @default(cuid())
+  token_hash  String   @unique @db.VarChar(64)
+  id_account  String
+  expires_at  DateTime
+  account     account  @relation(fields: [id_account], references: [id_account], onDelete: Cascade)
+
+  @@index([id_account])
+  @@index([expires_at])
+}
+
 model admin {
   id_admin          String       @id @db.VarChar(10)
   id_owner          String       @db.VarChar(10)
@@ -19,6 +53,7 @@ model admin {
   pembayaran        pembayaran[]
   penyerahan        penyerahan[]
   pesanan           pesanan[]
+  account           account?
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -43,6 +78,7 @@ model karyawan {
   email             String     @db.VarChar(40)
   tanggal_bergabung DateTime   @db.Date
   produksi          produksi[]
+  account           account?
 }
 
 model owner {
@@ -53,6 +89,7 @@ model owner {
   email             String   @db.VarChar(40)
   tanggal_bergabung DateTime @db.Date
   admin             admin[]
+  account           account?
 }
 
 model pelanggan {
@@ -65,17 +102,19 @@ model pelanggan {
   nomor          String    @db.VarChar(4)
   kota           String    @db.VarChar(15)
   pesanan        pesanan[]
+  account        account?
+  feedback       kritik_saran[]
 }
 
 model pembayaran {
   id_pembayaran     String   @id @db.VarChar(10)
-  id_admin          String   @db.VarChar(10)
+  id_admin          String?  @db.VarChar(10)
   no_pesanan        String   @db.VarChar(10)
   metode_pembayaran String   @db.VarChar(10)
   jumlah_bayar      Decimal  @db.Decimal(19, 2)
   tanggal_bayar     DateTime @db.Date
-  status_pembayaran String   @db.VarChar(10)
-  admin             admin    @relation(fields: [id_admin], references: [id_admin])
+  status_pembayaran String   @db.VarChar(20)
+  admin             admin?   @relation(fields: [id_admin], references: [id_admin])
   pesanan           pesanan  @relation(fields: [no_pesanan], references: [no_pesanan])
 }
 
@@ -84,22 +123,27 @@ model penyerahan {
   id_admin           String   @db.VarChar(10)
   no_pesanan         String   @db.VarChar(10)
   metode_penyerahan  String   @db.VarChar(10)
-  status_penyerahan  String   @db.VarChar(10)
+  status_penyerahan  String   @db.VarChar(20)
   tanggal_penyerahan DateTime @db.Date
   admin              admin    @relation(fields: [id_admin], references: [id_admin])
   pesanan            pesanan  @relation(fields: [no_pesanan], references: [no_pesanan])
+
+  @@unique([no_pesanan])
 }
 
 model pesanan {
   no_pesanan      String           @id @db.VarChar(10)
-  id_admin        String           @db.VarChar(10)
+  id_admin        String?          @db.VarChar(10)
   id_pelanggan    String           @db.VarChar(10)
   tanggal_pesanan DateTime         @db.Date
   status_pesanan  String           @db.VarChar(10)
+  metode_penyerahan String         @default("Ambil") @db.VarChar(20)
+  alamat_penyerahan String?        @db.VarChar(150)
+  catatan_pesanan String?          @db.VarChar(500)
   detail_pesanan  detail_pesanan[]
   pembayaran      pembayaran[]
   penyerahan      penyerahan[]
-  admin           admin            @relation(fields: [id_admin], references: [id_admin])
+  admin           admin?           @relation(fields: [id_admin], references: [id_admin])
   pelanggan       pelanggan        @relation(fields: [id_pelanggan], references: [id_pelanggan])
   produksi        produksi[]
   ulasan          ulasan[]
@@ -108,9 +152,12 @@ model pesanan {
 model produk {
   id_produk       String           @id @db.VarChar(10)
   nama_produk     String           @db.VarChar(30)
-  kategori_produk String           @db.VarChar(10)
-  satuan_produk   String           @db.VarChar(10)
+  kategori_produk String           @db.VarChar(30)
+  satuan_produk   String           @db.VarChar(20)
+  harga           Decimal          @default(0) @db.Decimal(19, 2)
+  stok            Int              @default(0)
   stok_minimum    Int
+  gambar_url      String?          @db.VarChar(255)
   detail_pesanan  detail_pesanan[]
 }
 
@@ -118,17 +165,29 @@ model produksi {
   id_produksi              String   @id @db.VarChar(10)
   no_pesanan               String   @db.VarChar(10)
   id_karyawan              String   @db.VarChar(10)
-  status_produksi          String   @db.VarChar(10)
+  status_produksi          String   @db.VarChar(20)
   tanggal_mulai_produksi   DateTime @db.Date
-  tanggal_selesai_produksi DateTime @db.Date
+  tanggal_selesai_produksi DateTime? @db.Date
   karyawan                 karyawan @relation(fields: [id_karyawan], references: [id_karyawan])
   pesanan                  pesanan  @relation(fields: [no_pesanan], references: [no_pesanan])
+
+  @@unique([no_pesanan])
+}
+
+model kritik_saran {
+  id_kritik_saran String    @id @db.VarChar(10)
+  id_pelanggan    String    @db.VarChar(10)
+  isi             String    @db.VarChar(500)
+  tanggal         DateTime  @db.Date
+  pelanggan       pelanggan @relation(fields: [id_pelanggan], references: [id_pelanggan], onDelete: Cascade)
+
+  @@index([id_pelanggan, tanggal])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model ulasan {
   id_ulasan      String   @id @db.VarChar(10)
-  no_pesanan     String   @db.VarChar(10)
+  no_pesanan     String   @unique @db.VarChar(10)
   rating         Int
   isi_ulasan     String   @db.VarChar(255)
   tanggal_ulasan DateTime @db.Date

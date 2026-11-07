@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { NextResponse } from "next/server";
 import { createSession } from "@/lib/auth";
 import { demoAccounts, isAppRole } from "@/lib/demo-auth";
@@ -10,11 +11,20 @@ export async function POST(request: Request) {
       { status: 403 },
     );
   }
+=======
+import { apiError, assertSameOrigin, createSession, verifyPassword } from "@/lib/auth";
+import { getPrismaClient } from "@/lib/prisma";
+
+export async function POST(request: Request) {
+  const originError = assertSameOrigin(request);
+  if (originError) return originError;
+>>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
+<<<<<<< HEAD
     return NextResponse.json({ error: "Permintaan tidak valid." }, { status: 400 });
   }
 
@@ -92,4 +102,35 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+=======
+    return apiError("Data masuk tidak valid.", 400);
+  }
+  if (
+    !body ||
+    typeof body !== "object" ||
+    !("username" in body) ||
+    !("password" in body) ||
+    typeof body.username !== "string" ||
+    typeof body.password !== "string"
+  ) {
+    return apiError("Username dan password wajib diisi.", 400);
+  }
+  if (body.username.length > 50 || body.password.length > 128) {
+    return apiError("Username atau password tidak valid.", 400);
+  }
+
+  const account = await getPrismaClient().account.findUnique({
+    where: { username: body.username.trim().toLowerCase() },
+    select: { id_account: true, password_hash: true, role: true },
+  });
+  if (!account || !(await verifyPassword(body.password, account.password_hash))) {
+    return apiError("Username atau password salah.", 401);
+  }
+
+  await createSession(account.id_account);
+  return Response.json(
+    { role: account.role },
+    { headers: { "Cache-Control": "no-store" } },
+  );
+>>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
 }

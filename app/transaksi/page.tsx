@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 
 import { useEffect, useState } from "react";
@@ -206,5 +207,15 @@ export default function TransaksiPage() {
         )}
       </div>
     </main>
+=======
+import { WorkspaceShell, adminLinks } from "@/app/components/workspace-shell";
+import TransaksiClient from "@/app/components/transaksi-client";
+
+export default function TransaksiPage() {
+  return (
+    <WorkspaceShell active="/transaksi" links={adminLinks} role="ADMIN">
+      <TransaksiClient />
+    </WorkspaceShell>
+>>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
   );
 }
