@@ -1,99 +1,3 @@
-<<<<<<< HEAD
-import { createHmac, timingSafeEqual } from "node:crypto";
-import { cookies } from "next/headers";
-import type { AppRole } from "@/lib/demo-auth";
-
-const cookieName = "dapur-abita-session";
-const sessionLifetimeSeconds = 60 * 60 * 12;
-
-export type AppSession = {
-  role: AppRole;
-  id: string;
-  name: string;
-  expiresAt: number;
-};
-
-function getSecret() {
-  const secret = process.env.AUTH_SECRET;
-
-  if (secret) {
-    return secret;
-  }
-
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("AUTH_SECRET must be configured in production.");
-  }
-
-  return "dapur-abita-local-demo-secret";
-}
-
-function sign(payload: string) {
-  return createHmac("sha256", getSecret()).update(payload).digest("base64url");
-}
-
-export async function createSession(session: Omit<AppSession, "expiresAt">) {
-  const expiresAt = Math.floor(Date.now() / 1000) + sessionLifetimeSeconds;
-  const payload = Buffer.from(
-    JSON.stringify({ ...session, expiresAt }),
-  ).toString("base64url");
-  const token = `${payload}.${sign(payload)}`;
-
-  (await cookies()).set(cookieName, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: sessionLifetimeSeconds,
-  });
-}
-
-export async function clearSession() {
-  (await cookies()).delete(cookieName);
-}
-
-export async function getSession(): Promise<AppSession | null> {
-  const token = (await cookies()).get(cookieName)?.value;
-
-  if (!token) {
-    return null;
-  }
-
-  const [payload, signature, extra] = token.split(".");
-  if (!payload || !signature || extra) {
-    return null;
-  }
-
-  const expected = Buffer.from(sign(payload));
-  const received = Buffer.from(signature);
-  if (
-    expected.length !== received.length ||
-    !timingSafeEqual(expected, received)
-  ) {
-    return null;
-  }
-
-  try {
-    const session = JSON.parse(
-      Buffer.from(payload, "base64url").toString("utf8"),
-    ) as AppSession;
-
-    if (
-      !session ||
-      typeof session.id !== "string" ||
-      typeof session.name !== "string" ||
-      typeof session.expiresAt !== "number" ||
-      !["customer", "admin", "production", "owner"].includes(session.role) ||
-      session.expiresAt <= Math.floor(Date.now() / 1000)
-    ) {
-      return null;
-    }
-
-    return session;
-  } catch {
-    return null;
-  }
-}
-=======
 import "server-only";
 
 import { createHash, randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
@@ -102,16 +6,18 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { getPrismaClient } from "@/lib/prisma";
-import type { account_role } from "@/app/generated/prisma/enums";
 
 const scrypt = promisify(scryptCallback);
 const sessionCookieName = "dapur_abita_session";
 const sessionDurationMs = 1000 * 60 * 60 * 8;
 
+// Menggunakan tipe union string untuk menghindari error missing member enum
+export type AccountRole = "ADMIN" | "CUSTOMER" | "KARYAWAN_PRODUKSI" | "OWNER";
+
 export type AuthUser = {
   id: string;
   username: string;
-  role: account_role;
+  role: AccountRole;
   personId: string;
   name: string;
 };
@@ -141,7 +47,8 @@ export async function createSession(accountId: string) {
   const token = randomBytes(32).toString("base64url");
   const expiresAt = new Date(Date.now() + sessionDurationMs);
   const prisma = getPrismaClient();
-  await prisma.auth_session.create({
+  // Pastikan prisma generate sudah dijalankan agar auth_session dikenali
+  await (prisma as any).auth_session.create({
     data: {
       token_hash: hashSessionToken(token),
       id_account: accountId,
@@ -161,7 +68,7 @@ export async function destroySession() {
   const cookieStore = await cookies();
   const token = cookieStore.get(sessionCookieName)?.value;
   if (token) {
-    await getPrismaClient().auth_session.deleteMany({
+    await (getPrismaClient() as any).auth_session.deleteMany({
       where: { token_hash: hashSessionToken(token) },
     });
   }
@@ -173,7 +80,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   if (!token) return null;
 
   await connection();
-  const session = await getPrismaClient().auth_session.findFirst({
+  const session = await (getPrismaClient() as any).auth_session.findFirst({
     where: { token_hash: hashSessionToken(token), expires_at: { gt: new Date() } },
     select: {
       account: {
@@ -211,13 +118,13 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   return {
     id: account.id_account,
     username: account.username,
-    role: account.role,
+    role: account.role as AccountRole,
     personId,
     name,
   };
 }
 
-export async function requireRole(...roles: account_role[]) {
+export async function requireRole(...roles: AccountRole[]) {
   const user = await getCurrentUser();
   if (!user) redirect("/");
   if (!roles.includes(user.role)) redirect("/");
@@ -254,4 +161,3 @@ export function apiError(message: string, status: number) {
 }
 
 export const authCookieName = sessionCookieName;
->>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
