@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dapur Abita
 
-## Getting Started
+## Local development
 
-First, run the development server:
+1. Configure `DATABASE_URL` for the PostgreSQL database.
+2. Install dependencies with `npm install`.
+3. Generate the Prisma Client with `npx prisma generate`.
+4. Add the demo records using `npm run db:seed`.
+5. Start the app using `npm run dev`, then open `http://localhost:3000`.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The seed is additive and idempotent. It creates its demo records only when
+they are missing; it does not delete or overwrite existing data.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development demo accounts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Role | Username | Password |
+| --- | --- | --- |
+| Customer | `rizky` | `rizky123` |
+| Admin | `admin` | `admin123` |
+| Produksi | `produksi` | `produksi123` |
+| Owner | `owner` | `owner123` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+These are development-only demo accounts. Demo login and registration are
+disabled when `NODE_ENV=production`. Configure a strong `AUTH_SECRET` for
+production session signing.
 
-## Learn More
+## Routes
 
-To learn more about Next.js, take a look at the following resources:
+- `/` — Dapur Abita cover page; login opens in Customer mode
+- `/login` — demo login and role selection
+- `/register` — customer profile registration
+- `/customer` — menu, checkout, orders, and reviews
+- `/admin` — operations, menu, payments, fulfillment, and sales
+- `/produksi` — production order queue
+- `/owner` — owner dashboard, reports, and reviews
+- `/owner/stock` — stock monitoring
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The customer cart is saved for the active browser session while navigating
+between menu and payment. Admin menu edits use the authenticated workspace
+`PATCH` handler and refresh the menu data after saving.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The demo catalog contains Brownies Kukus, Bolu Gulung, Risoles Ragout,
+Pastel Isi, and Lapis Surabaya. Retired Pinukuik products are excluded from
+workspace and checkout catalog responses. The seed removes them when they have
+no order history; records referenced by historical order lines are retained
+for referential integrity but remain hidden from the catalog.
 
-## Deploy on Vercel
+## Current database boundaries
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The existing Prisma schema has no account credential fields, product price, or
+current-stock field. To keep the schema unchanged, login credentials and the
+demo menu price/starting-stock catalog are development-only fixtures. Customer
+registration saves the customer profile and starts a demo session, but cannot
+persist a password for later login. New products can be saved, but need a
+price-bearing order line before customer checkout can use them.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Checkout records cash/transfer method and a pending payment in PostgreSQL;
+payment confirmation is manual in the Admin dashboard. No payment gateway is
+connected.

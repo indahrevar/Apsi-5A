@@ -24,3 +24,131 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+[data-bakery-theme="workspace"] {
+  color: #493426;
+}
+
+[data-bakery-theme="workspace"] header,
+[data-bakery-theme="workspace"] aside {
+  border-color: #ead9c7;
+  background-color: #fffaf3;
+}
+
+[data-bakery-theme="workspace"] section,
+[data-bakery-theme="workspace"] article,
+[data-bakery-theme="workspace"] form {
+  border-color: #ead9c7;
+  background-color: #fffdfa;
+  background-image: linear-gradient(145deg, #fffdfa, #fff8ef);
+}
+
+[data-bakery-theme="workspace"] section > h2 {
+  border-color: #ead9c7;
+  background-color: #f8eee3;
+}
+
+[data-bakery-theme="workspace"] th {
+  background-color: #f6ecdf;
+  color: #654b37;
+}
+
+[data-bakery-theme="workspace"] tr {
+  border-color: #efe3d6;
+}
+
+[data-bakery-theme="workspace"] tbody tr:hover {
+  background-color: #fff2e3;
+}
+
+[data-bakery-theme="workspace"] button[class*="bg-[#303030]"],
+[data-bakery-theme="login"] button[type="submit"] {
+  border-color: #a84e32;
+  background-color: #a84e32;
+  color: #fff;
+}
+
+[data-bakery-theme="workspace"] button[class*="bg-[#303030]"]:hover,
+[data-bakery-theme="login"] button[type="submit"]:hover {
+  border-color: #833c29;
+  background-color: #833c29;
+}
+
+[data-bakery-theme="workspace"] button[class*="bg-[#f0f0f0]"],
+[data-bakery-theme="workspace"] button[class*="bg-[#f3f3f3]"] {
+  background-color: #f3e5d6;
+  color: #70452f;
+}
+
+[data-bakery-theme="workspace"] button[class*="border-[#aaa]"],
+[data-bakery-theme="workspace"] button[class*="border-[#bbb]"],
+[data-bakery-theme="workspace"] button[class*="border-[#ccc]"],
+[data-bakery-theme="workspace"] button[class*="border-[#999]"],
+[data-bakery-theme="login"] button[aria-pressed="false"] {
+  border-color: #d7bda3;
+  color: #704d36;
+}
+
+[data-bakery-theme="workspace"] button[class*="border-[#aaa]"]:hover,
+[data-bakery-theme="workspace"] button[class*="border-[#bbb]"]:hover,
+[data-bakery-theme="workspace"] button[class*="border-[#ccc]"]:hover,
+[data-bakery-theme="workspace"] button[class*="border-[#999]"]:hover,
+[data-bakery-theme="login"] button[aria-pressed="false"]:hover {
+  border-color: #b66a43;
+  background-color: #fff1e2;
+}
+
+[data-bakery-theme="workspace"] input,
+[data-bakery-theme="workspace"] select,
+[data-bakery-theme="workspace"] textarea,
+[data-bakery-theme="login"] input {
+  border-color: #ddc5ad;
+  background-color: #fffefa;
+  color: #493426;
+}
+
+[data-bakery-theme="workspace"] input:focus,
+[data-bakery-theme="workspace"] select:focus,
+[data-bakery-theme="workspace"] textarea:focus,
+[data-bakery-theme="login"] input:focus {
+  border-color: #b66a43;
+  outline-color: #b66a43;
+}
+
+[data-bakery-theme="workspace"] span[class*="border-[#b8cdbb]"] {
+  border-color: #c4d6c1;
+  background-color: #edf5e9;
+  color: #456b42;
+}
+
+[data-bakery-theme="workspace"] span[class*="border-[#ddd0b6]"] {
+  border-color: #e8c99e;
+  background-color: #fff2d9;
+  color: #805521;
+}
+
+[data-bakery-theme="workspace"] span[class*="border-[#d5d5d5]"] {
+  border-color: #e3c9b0;
+  background-color: #f8eee3;
+  color: #704d36;
+}
+
+[data-bakery-theme="login"] {
+  border-color: #e7d2bd;
+  background-color: #fffdfa;
+  background-image: linear-gradient(145deg, #fffdfa, #fff6eb);
+}
+
+[data-bakery-theme="login"] button[aria-pressed="true"] {
+  border-color: #a84e32;
+  background-color: #a84e32;
+  color: #fff;
+}
+
+[data-bakery-theme="login"] a {
+  color: #a84e32;
+}
+
+[data-bakery-theme="login"] a:hover {
+  color: #833c29;
+}
