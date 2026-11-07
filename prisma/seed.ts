@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../app/generated/prisma/client";
 import { excludedCatalogProductIds } from "../lib/demo-catalog";
+import { hashPassword } from "../lib/auth";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -23,6 +24,9 @@ function daysAgo(days: number) {
 }
 
 async function seed() {
+  const defaultPasswordHash = await hashPassword("password123");
+
+  // 1. Seed Owner & Account
   await prisma.owner.upsert({
     where: { id_owner: "OWNDEMO1" },
     update: {},
@@ -36,6 +40,18 @@ async function seed() {
     },
   });
 
+  await prisma.account.upsert({
+    where: { username: "owner" },
+    update: { password_hash: defaultPasswordHash },
+    create: {
+      username: "owner",
+      password_hash: defaultPasswordHash,
+      role: "OWNER",
+      id_owner: "OWNDEMO1",
+    },
+  });
+
+  // 2. Seed Admin & Account
   await prisma.admin.upsert({
     where: { id_admin: "ADMDEMO1" },
     update: {},
@@ -50,6 +66,18 @@ async function seed() {
     },
   });
 
+  await prisma.account.upsert({
+    where: { username: "admin" },
+    update: { password_hash: defaultPasswordHash },
+    create: {
+      username: "admin",
+      password_hash: defaultPasswordHash,
+      role: "ADMIN",
+      id_admin: "ADMDEMO1",
+    },
+  });
+
+  // 3. Seed Karyawan Produksi & Account
   await prisma.karyawan.upsert({
     where: { id_karyawan: "KRYDEMO1" },
     update: {},
@@ -63,6 +91,18 @@ async function seed() {
     },
   });
 
+  await prisma.account.upsert({
+    where: { username: "produksi" },
+    update: { password_hash: defaultPasswordHash },
+    create: {
+      username: "produksi",
+      password_hash: defaultPasswordHash,
+      role: "KARYAWAN_PRODUKSI",
+      id_karyawan: "KRYDEMO1",
+    },
+  });
+
+  // 4. Seed Customers
   const customers = [
     {
       id_pelanggan: "PLGDEMO1",
@@ -102,6 +142,7 @@ async function seed() {
     });
   }
 
+  // 5. Seed Products
   const products = [
     ["PR01", "Brownies Kukus", "Kue Basah", "pcs", 20],
     ["PR02", "Bolu Gulung", "Kue Basah", "roll", 10],
@@ -138,6 +179,7 @@ async function seed() {
     }
   }
 
+  // 6. Seed Orders & Transactions
   const orders = [
     {
       id: "DORD001",
@@ -275,6 +317,7 @@ async function seed() {
     });
   }
 
+  // 7. Seed Reviews
   await prisma.ulasan.upsert({
     where: { id_ulasan: "DULS001" },
     update: {},
