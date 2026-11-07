@@ -19,7 +19,7 @@ async function CustomerSection({
   const { view } = await params;
   return (
     <RolePage
-      role="customer"
+      role="CUSTOMER"
       view={view}
       validViews={["menu", "checkout", "orders", "reviews"]}
     />

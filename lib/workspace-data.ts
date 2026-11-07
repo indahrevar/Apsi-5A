@@ -4,7 +4,7 @@ import {
   demoStockByProduct,
   excludedCatalogProductIds,
 } from "@/lib/demo-catalog";
-import type { AppRole } from "@/lib/demo-auth";
+import type { AccountRole } from "@/lib/auth";
 
 export type CatalogItem = {
   id: string;
@@ -53,11 +53,11 @@ export type WorkspaceData = {
 };
 
 export async function getWorkspaceData(
-  role: AppRole,
+  role: AccountRole | string,
   userId: string,
 ): Promise<WorkspaceData> {
   const prisma = getPrismaClient();
-  const orderWhere = role === "customer" ? { id_pelanggan: userId } : {};
+  const orderWhere = role === "CUSTOMER" ? { id_pelanggan: userId } : {};
 
   const [products, orders, historicalLines] = await Promise.all([
     prisma.produk.findMany({

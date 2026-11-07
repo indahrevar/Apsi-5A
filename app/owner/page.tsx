@@ -1,22 +1,20 @@
-<<<<<<< HEAD
-import RolePage from "@/app/role-page";
+import Link from "next/link";
 
-export default function OwnerPage() {
+export default function RegisterPage() {
   return (
-    <RolePage
-      role="owner"
-      view="dashboard"
-      validViews={["dashboard", "stock", "reports", "reviews"]}
-    />
-=======
-import { WorkspaceShell, ownerLinks } from "@/app/components/workspace-shell";
-import { OwnerDashboardClient } from "@/app/components/owner-dashboard-client";
-
-export default function OwnerDashboardPage() {
-  return (
-    <WorkspaceShell active="/owner" links={ownerLinks} role="OWNER">
-      <OwnerDashboardClient />
-    </WorkspaceShell>
->>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
+    <main className="flex min-h-screen items-center justify-center bg-white px-4 py-8 font-sans text-[#303030]">
+      <section className="w-full max-w-[420px] rounded-[5px] border border-[#bdbdbd] bg-white px-8 py-10 text-center">
+        <h1 className="text-[22px] font-bold leading-7">Daftar</h1>
+        <p className="mt-3 text-sm leading-6 text-[#666]">
+          Pendaftaran akun belum tersedia. Silakan hubungi administrator.
+        </p>
+        <Link
+          href="/login"
+          className="mt-6 inline-flex h-[34px] items-center justify-center rounded-full bg-[#303030] px-6 text-[13px] text-white transition hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#303030]"
+        >
+          Kembali ke Masuk
+        </Link>
+      </section>
+    </main>
   );
 }

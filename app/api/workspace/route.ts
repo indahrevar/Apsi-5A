@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { getPrismaClient } from "@/lib/prisma";
 import { excludedCatalogProductIds } from "@/lib/demo-catalog";
 import { getWorkspaceData } from "@/lib/workspace-data";
@@ -42,7 +42,7 @@ function jsonError(message: string, status = 400) {
 }
 
 export async function GET() {
-  const session = await getSession();
+  const session = await getCurrentUser();
   if (!session) {
     return jsonError("Sesi telah berakhir. Silakan masuk kembali.", 401);
   }
@@ -59,7 +59,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getSession();
+  const session = await getCurrentUser();
   if (!session) {
     return jsonError("Sesi telah berakhir. Silakan masuk kembali.", 401);
   }
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
   try {
     switch (body.action) {
       case "checkout": {
-        if (session.role !== "customer") {
+        if (session.role !== "CUSTOMER") {
           return jsonError("Checkout hanya tersedia untuk customer.", 403);
         }
 
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
           quantities.set(productId, (quantities.get(productId) ?? 0) + quantity);
         }
 
-        const workspace = await getWorkspaceData("admin", session.id);
+        const workspace = await getWorkspaceData("ADMIN", session.id);
         const catalog = new Map(workspace.catalog.map((item) => [item.id, item]));
         const items = [...quantities.entries()].map(([productId, quantity]) => {
           const product = catalog.get(productId);
@@ -208,7 +208,7 @@ export async function POST(request: Request) {
       }
 
       case "update-production": {
-        if (session.role !== "production") {
+        if (session.role !== "KARYAWAN_PRODUKSI") {
           return jsonError("Aksi ini hanya tersedia untuk bagian produksi.", 403);
         }
 
@@ -249,7 +249,7 @@ export async function POST(request: Request) {
       }
 
       case "update-order": {
-        if (session.role !== "admin") {
+        if (session.role !== "ADMIN") {
           return jsonError("Aksi ini hanya tersedia untuk admin.", 403);
         }
 
@@ -267,7 +267,7 @@ export async function POST(request: Request) {
       }
 
       case "confirm-payment": {
-        if (session.role !== "admin") {
+        if (session.role !== "ADMIN") {
           return jsonError("Aksi ini hanya tersedia untuk admin.", 403);
         }
 
@@ -290,7 +290,7 @@ export async function POST(request: Request) {
       }
 
       case "update-fulfillment": {
-        if (session.role !== "admin") {
+        if (session.role !== "ADMIN") {
           return jsonError("Aksi ini hanya tersedia untuk admin.", 403);
         }
 
@@ -311,7 +311,7 @@ export async function POST(request: Request) {
       }
 
       case "review": {
-        if (session.role !== "customer") {
+        if (session.role !== "CUSTOMER") {
           return jsonError("Ulasan hanya dapat dikirim oleh customer.", 403);
         }
 
@@ -350,7 +350,7 @@ export async function POST(request: Request) {
       }
 
       case "create-menu": {
-        if (session.role !== "admin") {
+        if (session.role !== "ADMIN") {
           return jsonError("Pengelolaan menu hanya tersedia untuk admin.", 403);
         }
 
@@ -384,7 +384,7 @@ export async function POST(request: Request) {
       }
 
       case "update-menu": {
-        if (session.role !== "admin") {
+        if (session.role !== "ADMIN") {
           return jsonError("Pengelolaan menu hanya tersedia untuk admin.", 403);
         }
 
@@ -413,7 +413,7 @@ export async function POST(request: Request) {
       }
 
       case "delete-menu": {
-        if (session.role !== "admin") {
+        if (session.role !== "ADMIN") {
           return jsonError("Pengelolaan menu hanya tersedia untuk admin.", 403);
         }
 
@@ -445,11 +445,11 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const session = await getSession();
+  const session = await getCurrentUser();
   if (!session) {
     return jsonError("Sesi telah berakhir. Silakan masuk kembali.", 401);
   }
-  if (session.role !== "admin") {
+  if (session.role !== "ADMIN") {
     return jsonError("Pengelolaan menu hanya tersedia untuk admin.", 403);
   }
 

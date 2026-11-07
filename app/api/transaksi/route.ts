@@ -1,14 +1,4 @@
 import { connection, NextResponse } from "next/server";
-<<<<<<< HEAD
-import { getPrismaClient } from "@/lib/prisma";
-
-export async function GET() {
-  await connection();
-
-  try {
-    const prisma = getPrismaClient();
-    const detailPesanan = await prisma.detail_pesanan.findMany({
-=======
 import { authorizeApi } from "@/lib/api-auth";
 import { getPrismaClient } from "@/lib/prisma";
 
@@ -41,7 +31,6 @@ export async function GET(request: Request) {
           },
         },
       },
->>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
       include: {
         produk: {
           select: {
@@ -51,8 +40,6 @@ export async function GET(request: Request) {
         pesanan: {
           select: {
             tanggal_pesanan: true,
-<<<<<<< HEAD
-=======
             pembayaran: {
               select: {
                 metode_pembayaran: true,
@@ -60,7 +47,6 @@ export async function GET(request: Request) {
                 status_pembayaran: true,
               },
             },
->>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
             produksi: {
               select: {
                 karyawan: {
@@ -96,17 +82,12 @@ export async function GET(request: Request) {
         jumlah: detail.jumlah,
         harga_satuan: hargaSatuan,
         tanggal: detail.pesanan.tanggal_pesanan.toISOString(),
-<<<<<<< HEAD
-=======
         metode_pembayaran:
           detail.pesanan.pembayaran[0]?.metode_pembayaran ?? "—",
->>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
         kasir: kasir || "—",
       };
     });
 
-<<<<<<< HEAD
-=======
     const processedOrders = new Set<string>();
     let totalTransfer = 0;
     let totalTunai = 0;
@@ -118,10 +99,10 @@ export async function GET(request: Request) {
 
       processedOrders.add(detail.no_pesanan);
       for (const payment of detail.pesanan.pembayaran) {
-      if (!["Dikonfirmasi", "Lunas", "Berhasil"].includes(payment.status_pembayaran)) {
-        continue;
-      }
-      const amount = Number(payment.jumlah_bayar.toString());
+        if (!["Dikonfirmasi", "Lunas", "Berhasil"].includes(payment.status_pembayaran)) {
+          continue;
+        }
+        const amount = Number(payment.jumlah_bayar.toString());
 
         if (payment.metode_pembayaran.toLowerCase().includes("tunai")) {
           totalTunai += amount;
@@ -131,7 +112,6 @@ export async function GET(request: Request) {
       }
     }
 
->>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
     const totalNilaiTransaksi = transactions.reduce(
       (total, transaction) =>
         total + transaction.jumlah * transaction.harga_satuan,
@@ -142,11 +122,8 @@ export async function GET(request: Request) {
       summary: {
         jumlahTransaksi: transactions.length,
         totalNilaiTransaksi,
-<<<<<<< HEAD
-=======
         totalTransfer,
         totalTunai,
->>>>>>> e7e7d4f070ccf9d866ce7788e13b8132a81d46ff
       },
       transactions,
     });

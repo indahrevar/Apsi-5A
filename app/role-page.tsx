@@ -2,14 +2,36 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import WorkspaceClient from "@/app/workspace-client";
-import { getSession } from "@/lib/auth";
-import { rolePaths, type AppRole } from "@/lib/demo-auth";
+import { getCurrentUser, type AuthUser } from "@/lib/auth";
 
 type Props = {
-  role: AppRole;
+  role: AuthUser["role"];
   view: string;
   validViews: string[];
 };
+
+const rolePaths: Record<AuthUser["role"], string> = {
+  ADMIN: "/admin",
+  CUSTOMER: "/menu",
+  KARYAWAN_PRODUKSI: "/produksi",
+  OWNER: "/owner",
+};
+
+// Map dari AccountRole (huruf besar) ke format role yang diminta oleh WorkspaceClient (huruf kecil)
+function mapRoleToWorkspace(role: AuthUser["role"]): "admin" | "customer" | "production" | "owner" {
+  switch (role) {
+    case "ADMIN":
+      return "admin";
+    case "CUSTOMER":
+      return "customer";
+    case "KARYAWAN_PRODUKSI":
+      return "production";
+    case "OWNER":
+      return "owner";
+    default:
+      return "customer";
+  }
+}
 
 export default function RolePage(props: Props) {
   return (
@@ -27,21 +49,21 @@ export default function RolePage(props: Props) {
 
 async function AuthorizedWorkspace({ role, view, validViews }: Props) {
   await connection();
-  const session = await getSession();
+  const session = await getCurrentUser();
 
   if (!session) {
-    redirect("/login");
+    redirect("/");
   }
   if (session.role !== role) {
-    redirect(rolePaths[session.role]);
+    redirect(rolePaths[session.role] ?? "/");
   }
   if (!validViews.includes(view)) {
-    redirect(rolePaths[role]);
+    redirect(rolePaths[role] ?? "/");
   }
 
   return (
     <WorkspaceClient
-      role={session.role}
+      role={mapRoleToWorkspace(session.role)}
       userName={session.name}
       view={view}
     />
