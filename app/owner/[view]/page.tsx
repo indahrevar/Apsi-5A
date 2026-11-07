@@ -17,7 +17,7 @@ async function OwnerSection({
   const { view } = await params;
   return (
     <RolePage
-      role="owner"
+      role="OWNER"
       view={view}
       validViews={["dashboard", "stock", "reports", "reviews"]}
     />

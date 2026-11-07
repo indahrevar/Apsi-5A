@@ -1,19 +1,20 @@
-import { WorkspaceShell, productionLinks } from "@/app/components/workspace-shell";
-import { PageTitle } from "@/app/components/ui";
-import { ProductionOrdersList } from "@/app/components/production-orders-list";
+import { Suspense } from "react";
+import RolePage from "@/app/role-page";
 
-export default function ProductionOrdersPage() {
+type PageProps = {
+  params: Promise<{ view: string }>;
+};
+
+export default async function ProductionViewPage({ params }: PageProps) {
+  const { view } = await params;
+
   return (
-    <WorkspaceShell
-      active="/produksi"
-      links={productionLinks}
-      role="KARYAWAN PRODUKSI"
-    >
-      <PageTitle
-        title="Daftar Pesanan"
-        description="Pesanan yang perlu disiapkan oleh tim produksi."
+    <Suspense fallback={<p className="panel">Memuat...</p>}>
+      <RolePage
+        role="KARYAWAN_PRODUKSI"
+        view={view}
+        validViews={["orders", "history"]}
       />
-      <ProductionOrdersList />
-    </WorkspaceShell>
+    </Suspense>
   );
 }

@@ -2,9 +2,11 @@ import { Suspense } from "react";
 import { WorkspaceShell, productionLinks } from "@/app/components/workspace-shell";
 import { ProductionDetailClient } from "@/app/components/production-detail-client";
 
-export default function ProductionDetailPage({
-  params,
-}: PageProps<"/produksi/[id]">) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default function ProductionDetailPage({ params }: PageProps) {
   return (
     <WorkspaceShell
       active="/produksi"
@@ -18,9 +20,7 @@ export default function ProductionDetailPage({
   );
 }
 
-async function ProductionDetail({
-  params,
-}: Pick<PageProps<"/produksi/[id]">, "params">) {
+async function ProductionDetail({ params }: PageProps) {
   const { id } = await params;
   return <ProductionDetailClient orderId={id} />;
 }
